@@ -11,6 +11,7 @@ DISTDIR   := uuid-$(VERSION)
 
 BEAMFILES := $(wildcard ebin/*.beam) $(wildcard test/*.beam)
 DIALYZER_PLT := erlang-uuid.plt
+CLEAN_DIALYZER_PLT := clean-erlang-uuid.plt
 
 all: build
 
@@ -26,7 +27,14 @@ clean:
 $(DIALYZER_PLT): build
 	dialyzer --add_to_plt -r ebin --output_plt $(DIALYZER_PLT)
 
+$(CLEAN_DIALYZER_PLT): build
+	rm -f $(CLEAN_DIALYZER_PLT)
+	dialyzer --build_plt --apps erts kernel stdlib crypto -r --output_plt $(DIALYZER_PLT)
+
 dialyzer: $(DIALYZER_PLT)
+	dialyzer --plt $(DIALYZER_PLT) ebin/uuid.beam
+
+dialyzer-clean: $(CLEAN_DIALYZER_PLT)
 	dialyzer --plt $(DIALYZER_PLT) ebin/uuid.beam
 
 test: build
